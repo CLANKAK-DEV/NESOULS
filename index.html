@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NESOULS - Private Access</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #000000;
+      color: #ffffff;
+      overflow-x: hidden;
+      font-weight: 400;
+    }
+
+    /* Enhanced Navigation */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 1rem 2rem;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 165, 0, 0.1);
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .navbar.scrolled {
+      background: rgba(0, 0, 0, 0.98);
+      border-bottom: 1px solid rgba(255, 165, 0, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff, #ffa500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      letter-spacing: 2px;
+      animation: logoGlow 2s ease-in-out infinite alternate;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    @keyframes logoGlow {
+      from {
+        filter: drop-shadow(0 0 8px rgba(255, 165, 0, 0.4));
+        transform: scale(1);
+      }
+      to {
+        filter: drop-shadow(0 0 20px rgba(255, 165, 0, 0.8));
+        transform: scale(1.02);
+      }
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2.5rem;
+    }
+
+    .nav-links li {
+      position: relative;
+    }
+
+    .nav-links a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      position: relative;
+      padding: 0.5rem 0;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer;
+    }
+
+    .nav-links a::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(135deg, #ffa500, #ffffff);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: #ffa500;
+      transform: translateY(-2px);
+    }
+
+    .nav-links a:hover::before,
+    .nav-links a.active::before {
+      width: 100%;
+    }
+
+    .nav-links a.active {
+      color: #ffa500;
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .social-icons a {
+      color: #ffffff;
+      transition: all 0.3s ease;
+      padding: 0.5rem;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .social-icons a:hover {
+      color: #ffa500;
+      background: rgba(255, 165, 0, 0.1);
+      transform: translateY(-3px) scale(1.1);
+    }
+
+    /* Page Sections */
+    .page-section {
+      min-height: 100vh;
+      width: 100vw;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.6s ease;
+      transform: translateY(50px);
+    }
+
+    .page-section.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    /* Hero Section - UPDATED FOR FULL WIDTH */
+    #home {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+      background-image: url('img/IMG_1111.png');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .background-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+      z-index: 1;
+    }
+
+    .hero-content {
+      text-align: center;
+      z-index: 10;
+      max-width: 900px;
+      padding: 0 2rem;
+      position: relative;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-content h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(4rem, 12vw, 8rem);
+      font-weight: 900;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #ffffff 0%, #ffa500 50%, #ffffff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -2px;
+      position: relative;
+      animation: titlePulse 3s ease-in-out infinite alternate;
+      text-transform: uppercase;
+      text-shadow: 0 0 30px rgba(255, 165, 0, 0.3);
+    }
+
+    @keyframes titlePulse {
+      from {
+        filter: drop-shadow(0 0 25px rgba(255, 165, 0, 0.4));
+        transform: scale(1);
+      }
+      to {
+        filter: drop-shadow(0 0 50px rgba(255, 165, 0, 0.8));
+        transform: scale(1.01);
+      }
+    }
+
+    /* Animated Text - Typewriter Effect */
+    .animated-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.6rem;
+      opacity: 0.95;
+      margin-bottom: 3rem;
+      padding: 2rem 3rem;
+      font-weight: 300;
+      color: #ffffff;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      position: relative;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 15px;
+      border: 1px solid #ffa500;
+      backdrop-filter: blur(10px);
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .typewriter-cursor {
+      display: inline-block;
+      background-color: #ffa500;
+      width: 3px;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .typewriter-char {
+      opacity: 0;
+      animation: fadeInChar 0.1s ease-in-out forwards;
+    }
+
+    @keyframes fadeInChar {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animated-text::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 2px;
+      background: #ffa500;
+      animation: slideInLine 1s ease-out 4s both;
+    }
+
+    @keyframes slideInLine {
+      from {
+        width: 0;
+        opacity: 0;
+      }
+      to {
+        width: 60px;
+        opacity: 1;
+      }
+    }
+
+    .text-wave {
+      display: inline-block;
+      animation: simpleWave 3s ease-in-out infinite;
+      animation-delay: calc(var(--i) * 0.1s);
+    }
+
+    @keyframes simpleWave {
+      0%, 100% {
+        transform: translateY(0);
+        color: #ffffff;
+      }
+      50% {
+        transform: translateY(-5px);
+        color: #ffa500;
+      }
+    }
+
+    .cta-button {
+      font-family: 'Space Grotesk', sans-serif;
+      background: linear-gradient(135deg, #ffa500, #ffffff, #ffa500);
+      color: #000000;
+      padding: 1.4rem 3.5rem;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      text-decoration: none;
+      display: inline-block;
+      box-shadow: 0 10px 35px rgba(255, 165, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 1s ease-out 0.9s both;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      border: 2px solid transparent;
+    }
+
+    .cta-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .cta-button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .cta-button:hover::before {
+      left: 100%;
+    }
+
+    .cta-button:hover::after {
+      opacity: 1;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-6px) scale(1.05);
+      box-shadow: 0 20px 50px rgba(255, 165, 0, 0.6);
+      background: linear-gradient(135deg, #ffffff, #ffa500, #ffffff);
+      border-color: rgba(255, 165, 0, 0.2);
+      color: #000000;
+    }
+
+    /* Content Sections */
+    .content-section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 6rem 2rem;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+      position: relative;
+    }
+
+    .content-section:nth-child(even) {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 50%, #1a1a1a 100%);
+    }
+
+    .section-content {
+      max-width: 1200px;
+      text-align: center;
+      animation: slideInContent 0.8s ease-out;
+    }
+
+    @keyframes slideInContent {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-content h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, #ffffff 0%, #ffa500 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .section-content p {
+      font-size: 1.2rem;
+      line-height: 1.8;
+      color: #ffffff;
+      margin-bottom: 2rem;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Footer */
+    .developer-footer {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 12px 20px;
+      border-radius: 25px;
+      border: 1px solid rgba(255, 165, 0, 0.3);
+      z-index: 999;
+      transition: all 0.3s ease;
+    }
+
+    .developer-footer:hover {
+      background: rgba(0, 0, 0, 0.9);
+      border-color: #ffa500;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(255, 165, 0, 0.2);
+    }
+
+    .developer-footer .developer-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      color: #ccc;
+      margin: 0;
+      transition: color 0.3s ease;
+    }
+
+    .developer-footer:hover .developer-text {
+      color: #ffa500;
+    }
+
+    .developer-footer .developer-name {
+      color: #ffa500;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .developer-footer:hover .developer-name {
+      color: #fff;
+      text-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+    }
+
+    /* Mobile Navigation */
+    .mobile-menu-toggle {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+
+    .mobile-menu-toggle span {
+      width: 25px;
+      height: 3px;
+      background: #ffffff;
+      margin: 3px 0;
+      transition: 0.3s;
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.7);
+      animation: bounce 2s infinite;
+      z-index: 10;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+      }
+      40% {
+        transform: translateX(-50%) translateY(-10px);
+      }
+      60% {
+        transform: translateX(-50%) translateY(-5px);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 1rem;
+      }
+
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.98);
+        flex-direction: column;
+        gap: 0;
+        padding: 2rem 0;
+        border-top: 1px solid rgba(255, 165, 0, 0.2);
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .nav-links li {
+        padding: 1rem 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .mobile-menu-toggle {
+        display: flex;
+      }
+
+      .social-icons {
+        gap: 1rem;
+      }
+
+      .hero-content {
+        padding: 0 1rem;
+      }
+
+      .hero-content h1 {
+        font-size: clamp(3rem, 15vw, 6rem);
+        letter-spacing: -1px;
+      }
+
+      .animated-text {
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        padding: 1.5rem 2rem;
+        min-height: 60px;
+      }
+
+      .content-section {
+        padding: 4rem 1rem;
+      }
+
+      .developer-footer {
+        bottom: 10px;
+        right: 10px;
+        padding: 8px 15px;
+        border-radius: 20px;
+      }
+
+      .developer-footer .developer-text {
+        font-size: 0.8rem;
+      }
+
+      /* Mobile background adjustments */
+      #home {
+        background-attachment: scroll;
+        background-size: cover;
+      }
+    }
+
+    /* Additional styles for ultra-wide screens */
+    @media (min-width: 1920px) {
+      #home {
+        background-size: cover;
+        background-position: center center;
+      }
+    }
+
+    /* Ensure no horizontal scrolling */
+    html, body {
+      overflow-x: hidden;
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="logo" onclick="showSection('home')">NESOULS</div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" onclick="showSection('home')" class="nav-link active">Home</a></li>
+      <li><a href="about.html" onclick="showSection('about')" class="nav-link">About</a></li>
+      <li><a href="collection.html" onclick="showSection('collection')" class="nav-link">Collection</a></li>
+      <li><a href="game.html" onclick="showSection('game')" class="nav-link">Game</a></li>
+      <li><a href="tools.html" onclick="showSection('tools')" class="nav-link">Tools</a></li>
+    </ul>
+    <div class="mobile-menu-toggle" id="mobileToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="social-icons">
+      <a href="https://x.com/NESOULS" title="Discord">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+        </svg>
+      </a>
+      <a href="https://x.com/NESOULS" title="X (Twitter)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Developer Footer -->
+  <div class="developer-footer">
+    <p class="developer-text">Developed by <a href="https://x.com/Clankak" class="developer-name">clankak</a></p>
+  </div>
+
+  <!-- Home Section -->
+  <section id="home" class="page-section active">
+    <div class="background-overlay"></div>
+    <div class="hero-content">
+      <h1>NESOULS</h1>
+      <div class="animated-text" id="animatedText">
+        Private Access • Exclusive Collection
+      </div>
+      <button class="cta-button" onclick="showSection('about')">Explore Collection</button>
+    </div>
+    <div class="scroll-indicator">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M7 10l5 5 5-5z"/>
+      </svg>
+    </div>
+  </section>
+
+  <script>
+    // Page navigation
+    function showSection(sectionId) {
+      // Hide all sections
+      const sections = document.querySelectorAll('.page-section');
+      sections.forEach(section => {
+        section.classList.remove('active');
+      });
+
+      // Show target section
+      document.getElementById(sectionId).classList.add('active');
+
+      // Update navigation
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+      });
+
+      // Find and activate the corresponding nav link
+      const targetNav = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+      if (targetNav && targetNav.classList.contains('nav-link')) {
+        targetNav.classList.add('active');
+      }
+
+      // Close mobile menu
+      const navLinksContainer = document.getElementById('navLinks');
+      navLinksContainer.classList.remove('active');
+
+      // Restart text animation for home section
+      if (sectionId === 'home') {
+        setTimeout(animateText, 300);
+      }
+    }
+
+    // Typewriter animation function
+    function typewriterAnimation() {
+      const text = "Private Access • Exclusive Collection";
+      const animatedTextEl = document.getElementById('animatedText');
+      const typingSpeed = 100; // milliseconds per character
+      
+      // Clear the text container
+      animatedTextEl.innerHTML = '';
+      
+      // Create cursor element
+      const cursor = document.createElement('span');
+      cursor.className = 'typewriter-cursor';
+      cursor.innerHTML = '&nbsp;';
+      
+      let charIndex = 0;
+      
+      function typeChar() {
+        if (charIndex < text.length) {
+          const char = text[charIndex];
+          const span = document.createElement('span');
+          span.className = 'typewriter-char';
+          
+          if (char === ' ') {
+            span.innerHTML = '&nbsp;';
+          } else {
+            span.textContent = char;
+          }
+          
+          // Insert character before cursor
+          animatedTextEl.insertBefore(span, cursor);
+          
+          // Trigger animation
+          setTimeout(() => {
+            span.style.animationDelay = '0s';
+          }, 10);
+          
+          charIndex++;
+          setTimeout(typeChar, typingSpeed);
+        } else {
+          // Remove cursor after typing is complete
+          setTimeout(() => {
+            if (cursor.parentNode) {
+              cursor.remove();
+            }
+          }, 1000);
+        }
+      }
+      
+      // Add cursor and start typing
+      animatedTextEl.appendChild(cursor);
+      setTimeout(typeChar, 500); // Start after small delay
+    }
+
+    // Animated text function - Simplified (kept for compatibility)
+    function animateText() {
+      typewriterAnimation();
+    }
+
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // Mobile menu toggle
+    const mobileToggle = document.getElementById('mobileToggle');
+    const navLinks = document.getElementById('navLinks');
+
+    mobileToggle.addEventListener('click', function() {
+      navLinks.classList.toggle('active');
+    });
+
+    // Initialize typewriter animation on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(typewriterAnimation, 1000);
+    });
+
+    // Prevent default anchor behavior
+    document.querySelectorAll('a[href="#"]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+      });
+    });
+  </script>
+</body>
+</html>

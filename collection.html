@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Collection - NESOULS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #000000;
+      color: #ffffff;
+      overflow-x: hidden;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    /* Enhanced Navigation */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 1rem 2rem;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 165, 0, 0.1);
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .navbar.scrolled {
+      background: rgba(0, 0, 0, 0.98);
+      border-bottom: 1px solid rgba(255, 165, 0, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff, #ffa500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      letter-spacing: 2px;
+      animation: logoGlow 2s ease-in-out infinite alternate;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    @keyframes logoGlow {
+      from {
+        filter: drop-shadow(0 0 8px rgba(255, 165, 0, 0.4));
+        transform: scale(1);
+      }
+      to {
+        filter: drop-shadow(0 0 20px rgba(255, 165, 0, 0.8));
+        transform: scale(1.02);
+      }
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2.5rem;
+    }
+
+    .nav-links li {
+      position: relative;
+    }
+
+    .nav-links a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      position: relative;
+      padding: 0.5rem 0;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer;
+    }
+
+    .nav-links a::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(135deg, #ffa500, #ffffff);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: #ffa500;
+      transform: translateY(-2px);
+    }
+
+    .nav-links a:hover::before,
+    .nav-links a.active::before {
+      width: 100%;
+    }
+
+    .nav-links a.active {
+      color: #ffa500;
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .social-icons a {
+      color: #ffffff;
+      transition: all 0.3s ease;
+      padding: 0.5rem;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .social-icons a:hover {
+      color: #ffa500;
+      background: rgba(255, 165, 0, 0.1);
+      transform: translateY(-3px) scale(1.1);
+    }
+
+    /* Main Content */
+    .main-container {
+      padding-top: 120px;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .section-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(3rem, 8vw, 5rem);
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, #ffffff 0%, #ffa500 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      animation: titlePulse 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes titlePulse {
+      from {
+        filter: drop-shadow(0 0 25px rgba(255, 165, 0, 0.4));
+      }
+      to {
+        filter: drop-shadow(0 0 50px rgba(255, 165, 0, 0.8));
+      }
+    }
+
+    /* Coming Soon Section */
+    .coming-soon-container {
+      text-align: center;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    .coming-soon-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(4rem, 12vw, 8rem);
+      font-weight: 900;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, #ffffff 0%, #ffa500 50%, #ffffff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      animation: megaPulse 2s ease-in-out infinite alternate;
+      position: relative;
+    }
+
+    @keyframes megaPulse {
+      from {
+        filter: drop-shadow(0 0 30px rgba(255, 165, 0, 0.6));
+        transform: scale(1);
+      }
+      to {
+        filter: drop-shadow(0 0 60px rgba(255, 165, 0, 1));
+        transform: scale(1.02);
+      }
+    }
+
+    .coming-soon-subtitle {
+      font-size: 2rem;
+      color: #ffa500;
+      margin-bottom: 3rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      animation: subtitleGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes subtitleGlow {
+      from {
+        color: #ffa500;
+        text-shadow: 0 0 20px rgba(255, 165, 0, 0.5);
+      }
+      to {
+        color: #ffffff;
+        text-shadow: 0 0 30px rgba(255, 255, 255, 0.7);
+      }
+    }
+
+    .coming-soon-description {
+      font-size: 1.3rem;
+      line-height: 1.8;
+      color: #ffffff;
+      margin-bottom: 4rem;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Preview Grid */
+    .preview-section {
+      margin-top: 4rem;
+      width: 100%;
+    }
+
+    .preview-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      color: #ffa500;
+      text-transform: uppercase;
+    }
+
+    .collection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .collection-item {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #ffa500;
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      opacity: 0.7;
+    }
+
+    .collection-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 165, 0, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .collection-item:hover::before {
+      left: 100%;
+    }
+
+    .collection-item:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(255, 165, 0, 0.3);
+      opacity: 1;
+    }
+
+    .collection-image {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      filter: grayscale(50%);
+      transition: filter 0.3s ease;
+    }
+
+    .collection-item:hover .collection-image {
+      filter: grayscale(0%);
+    }
+
+    .collection-content h3 {
+      font-family: 'Orbitron', monospace;
+      color: #ffa500;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+
+    .collection-content p {
+      color: #cccccc;
+      line-height: 1.6;
+    }
+
+    /* Notification Badge */
+    .notification-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #ffa500;
+      color: #000000;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      animation: badgePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    /* Countdown Timer Placeholder */
+    .countdown-container {
+      margin-top: 3rem;
+      padding: 2rem;
+      background: rgba(255, 165, 0, 0.1);
+      border: 1px solid #ffa500;
+      border-radius: 15px;
+      text-align: center;
+    }
+
+    .countdown-text {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.5rem;
+      color: #ffa500;
+      margin-bottom: 1rem;
+    }
+
+    .countdown-timer {
+      font-family: 'Orbitron', monospace;
+      font-size: 2.5rem;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    /* Mobile Navigation */
+    .mobile-menu-toggle {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+
+    .mobile-menu-toggle span {
+      width: 25px;
+      height: 3px;
+      background: #ffffff;
+      margin: 3px 0;
+      transition: 0.3s;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 1rem;
+      }
+
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.98);
+        flex-direction: column;
+        gap: 0;
+        padding: 2rem 0;
+        border-top: 1px solid rgba(255, 165, 0, 0.2);
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .nav-links li {
+        padding: 1rem 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .mobile-menu-toggle {
+        display: flex;
+      }
+
+      .social-icons {
+        gap: 1rem;
+      }
+
+      .coming-soon-container {
+        padding: 2rem 1rem;
+      }
+
+      .coming-soon-subtitle {
+        font-size: 1.5rem;
+      }
+
+      .coming-soon-description {
+        font-size: 1.1rem;
+      }
+
+      .collection-grid {
+        grid-template-columns: 1fr;
+        padding: 0 1rem;
+      }
+
+      .countdown-timer {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="logo" onclick="location.href='index.html'">NESOULS</div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="about.html" class="nav-link">About</a></li>
+      <li><a href="collection.html" class="nav-link active">Collection</a></li>
+           <li><a href="game.html" onclick="showSection('game')" class="nav-link">Game</a></li>
+      <li><a href="tools.html" onclick="showSection('tools')" class="nav-link">Tools</a></li>
+    </ul>
+    <div class="mobile-menu-toggle" id="mobileToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="social-icons">
+      <a href="https://x.com/NESOULS" title="Discord">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+        </svg>
+      </a>
+      <a href="https://x.com/NESOULS" title="X (Twitter)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-container">
+    <div class="notification-badge">New Collection</div>
+    
+    <h1 class="section-title">Collection</h1>
+    
+    <div class="coming-soon-container">
+      <!-- Massive Coming Soon Title -->
+      <h2 class="coming-soon-title">COMING SOON</h2>
+          
+    </div>
+
+
+  </div>
+
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // Mobile menu toggle
+    const mobileToggle = document.getElementById('mobileToggle');
+    const navLinks = document.getElementById('navLinks');
+
+    mobileToggle.addEventListener('click', function() {
+      navLinks.classList.toggle('active');
+    });
+
+    // Animated countdown placeholder
+    function updateCountdown() {
+      const countdownElement = document.getElementById('countdown');
+      const options = ['⏰ TBA', '🔥 Soon', '⚡ Loading...', '💎 Coming'];
+      let currentIndex = 0;
+      
+      setInterval(() => {
+        countdownElement.textContent = options[currentIndex];
+        currentIndex = (currentIndex + 1) % options.length;
+      }, 2000);
+    }
+
+    // Initialize countdown animation
+    updateCountdown();
+
+    // Collection item hover effects
+    document.querySelectorAll('.collection-item').forEach(item => {
+      item.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-15px) scale(1.02)';
+      });
+      
+      item.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0) scale(1)';
+      });
+    });
+
+    // Add dynamic glow effect to coming soon title
+    const comingSoonTitle = document.querySelector('.coming-soon-title');
+    let glowIntensity = 0;
+    let increasing = true;
+
+    setInterval(() => {
+      if (increasing) {
+        glowIntensity += 0.1;
+        if (glowIntensity >= 1) increasing = false;
+      } else {
+        glowIntensity -= 0.1;
+        if (glowIntensity <= 0) increasing = true;
+      }
+      
+      comingSoonTitle.style.filter = `drop-shadow(0 0 ${30 + glowIntensity * 30}px rgba(255, 165, 0, ${0.6 + glowIntensity * 0.4}))`;
+    }, 100);
+  </script>
+</body>
+</html>
