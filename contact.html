@@ -7,7 +7,31 @@
     <link rel="icon" type="image/jpg" href="nesouls.jpg">
 
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.38.0/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js" defer></script>
+  <script>
+    (function ensureSupabaseCdnFallback() {
+      function needFallback() {
+        return !(window && window.supabase && typeof window.supabase.createClient === 'function');
+      }
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        if (needFallback()) {
+          var s = document.createElement('script');
+          s.src = 'https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.44.4/umd/supabase.min.js';
+          s.defer = true;
+          document.head.appendChild(s);
+        }
+      } else {
+        document.addEventListener('DOMContentLoaded', function() {
+          if (needFallback()) {
+            var s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.44.4/umd/supabase.min.js';
+            s.defer = true;
+            document.head.appendChild(s);
+          }
+        });
+      }
+    })();
+  </script>
   <style>
     * {
       margin: 0;
@@ -555,6 +579,30 @@
       padding: 2rem;
     }
 
+    .connection-status {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.8rem;
+      z-index: 999;
+      transition: all 0.3s ease;
+    }
+
+    .connection-status.connected {
+      background: rgba(0, 255, 0, 0.2);
+      border: 1px solid #00ff00;
+      color: #00ff00;
+    }
+
+    .connection-status.disconnected {
+      background: rgba(255, 255, 0, 0.2);
+      border: 1px solid #ffff00;
+      color: #ffff00;
+    }
+
     /* Mobile Navigation */
     .mobile-menu-toggle {
       display: none;
@@ -632,6 +680,11 @@
   </style>
 </head>
 <body>
+  <!-- Connection Status Indicator -->
+  <div id="connectionStatus" class="connection-status connected">
+    ✓ SUPABASE CONNECTED
+  </div>
+
   <!-- Navigation -->
   <nav class="navbar" id="navbar">
     <div class="logo" onclick="location.href='index.html'">NESOULS</div>
@@ -641,7 +694,7 @@
       <li><a href="collection.html" class="nav-link">Collection</a></li>
       <li><a href="tools.html" class="nav-link">Tools</a></li>
       <li><a href="game.html" class="nav-link">Game</a></li>
-      <li><a href="contact.html" class="nav-link">Contact</a></li>
+      <li><a href="contact.html" class="nav-link">Apply form</a></li>
     </ul>
     <div class="mobile-menu-toggle" id="mobileToggle">
       <span></span>
@@ -664,11 +717,11 @@
 
   <!-- Main Content -->
   <div class="main-container">
-    <h1 class="section-title">Contact</h1>
+    <h1 class="section-title">Apply form</h1>
     
     <!-- Tab Navigation -->
     <div class="tab-navigation">
-      <button class="tab-btn active" onclick="switchTab('contact')">Contact Form</button>
+      <button class="tab-btn active" onclick="switchTab('contact')">Apply form</button>
       <button class="tab-btn" onclick="switchTab('admin')">Admin Panel</button>
     </div>
 
@@ -750,28 +803,78 @@
   </div>
 
   <script>
-    // Supabase Configuration
-    // Replace these with your Supabase project credentials
-    const SUPABASE_URL = 'https://stajcfokdkfdfekzktot.supabase.co'
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWpjZm9rZGtmZGZla3prdG90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MDQwNjQsImV4cCI6MjA3MTM4MDA2NH0.azgC--qc9P-Xw8rEQbvTO0tsPaCryJPW25a3UpT8aBY'
-    const ADMIN_PASSWORD = 'blankazaff2025' // Change this to a secure password
+    // Supabase Configuration - Replace with your actual API key
+    const SUPABASE_URL = 'https://lyzxiggbtrhbggitfdrc.supabase.co'
+    // IMPORTANT: Replace this with your actual anon public key from Supabase Dashboard → Settings → API
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5enhpZ2didHJoYmdnaXRmZHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4NjU0NzIsImV4cCI6MjA3MTQ0MTQ3Mn0.NmsbjvJguHhQc76coORjZskONO4cOW-qU18qEQ1L4vY'
+    const ADMIN_PASSWORD = 'blankazaff2025'
 
     // Initialize Supabase client
-    let supabase;
+    let supabaseClient;
     let isAuthenticated = false;
+    let connectionStatus = false;
     
-    // Initialize Supabase when the script loads
-    try {
-      supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } catch (error) {
-      console.log('Supabase not configured yet');
+    // Wait for Supabase global to load and initialize client
+    async function waitForSupabaseGlobal(timeoutMs = 10000) {
+      const start = Date.now();
+      return new Promise(resolve => {
+        const check = () => {
+          if (window && window.supabase && typeof window.supabase.createClient === 'function') {
+            return resolve(true);
+          }
+          if (Date.now() - start >= timeoutMs) return resolve(false);
+          setTimeout(check, 200);
+        };
+        check();
+      });
+    }
+
+    async function initSupabase() {
+      if (supabaseClient) return true;
+      const ok = await waitForSupabaseGlobal();
+      if (!ok) {
+        console.error('❌ Supabase JS library not available');
+        connectionStatus = false;
+        updateConnectionStatus(false);
+        return false;
+      }
+      try {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        connectionStatus = true;
+        updateConnectionStatus(true);
+        console.log('✅ Supabase client initialized successfully');
+        return true;
+      } catch (error) {
+        console.error('❌ Failed to initialize Supabase client:', error);
+        connectionStatus = false;
+        updateConnectionStatus(false);
+        return false;
+      }
+    }
+
+    // Test Supabase connection
+    async function testSupabaseConnection() {
+      // Consider the client ready once initialized; avoid SELECT checks that may fail with RLS
+      const isReady = Boolean(supabaseClient);
+      connectionStatus = isReady;
+      updateConnectionStatus(isReady);
+    }
+
+    // Update connection status indicator
+    function updateConnectionStatus(isConnected) {
+      const statusElement = document.getElementById('connectionStatus');
+      if (isConnected) {
+        statusElement.textContent = '✓ SUPABASE CONNECTED';
+        statusElement.className = 'connection-status connected';
+      } else {
+        statusElement.textContent = '⚠ USING FALLBACK MODE';
+        statusElement.className = 'connection-status disconnected';
+      }
     }
 
     // Simple authentication for admin panel
     async function authenticateAdmin(password) {
       if (password === ADMIN_PASSWORD) {
-        // For demo purposes, we'll use a simple password check
-        // In production, you'd want proper authentication
         isAuthenticated = true;
         return true;
       }
@@ -819,7 +922,7 @@
       event.target.classList.add('active');
     }
 
-    // Form submission
+    // Form submission - ALWAYS uses Supabase, no localStorage fallback
     document.getElementById('contactForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
@@ -859,24 +962,25 @@
       }
 
       try {
-        // If Supabase is configured, save to database
-        if (supabase && SUPABASE_URL !== 'https://stajcfokdkfdfekzktot.supabase.co') {
-          const { data, error } = await supabase
-            .from('contact_submissions')
-            .insert([submissionData]);
+        // Ensure Supabase client is available (retry init if needed)
+        const clientReady = await initSupabase();
+        if (!clientReady) throw new Error('Supabase connection not available');
 
-          if (error) {
-            throw error;
-          }
-        } else {
-          // Fallback to localStorage if Supabase is not configured
-          const existingSubmissions = JSON.parse(localStorage.getItem('nesouls_submissions') || '[]');
-          submissionData.id = Date.now(); // Simple ID generation
-          existingSubmissions.push(submissionData);
-          localStorage.setItem('nesouls_submissions', JSON.stringify(existingSubmissions));
+        // Save to Supabase database
+        const { data, error } = await supabaseClient
+          .schema('public')
+          .from('contact_submissions')
+          .insert([submissionData])
+          .select();
+
+        if (error) {
+          throw error;
         }
 
+        console.log('✅ Submission saved successfully:', data);
+
         // Show success message
+        successMessage.textContent = 'Message sent successfully! We\'ll get back to you soon.';
         successMessage.style.display = 'block';
         successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
@@ -889,8 +993,26 @@
         }, 5000);
 
       } catch (error) {
-        console.error('Error saving submission:', error);
-        errorMessage.textContent = 'An error occurred. Please try again.';
+        console.error('❌ Error saving submission:', error);
+        
+        let errorMsg = 'An error occurred while sending your message. ';
+        const raw = (error && (error.message || error.error_description || error.hint)) || '';
+        
+        if (raw.includes('relation "contact_submissions" does not exist')) {
+          errorMsg += 'Database table not found. Please create the table in Supabase.';
+        } else if (raw.toLowerCase().includes('policy') || raw.toLowerCase().includes('rls')) {
+          errorMsg += 'RLS policy blocked the request. Check policies.';
+        } else if (raw.toLowerCase().includes('jwt')) {
+          errorMsg += 'Authentication error. Check anon key and project URL.';
+        } else if (raw.toLowerCase().includes('fetch') || raw.toLowerCase().includes('network') || raw.toLowerCase().includes('cors') || raw.toLowerCase().includes('failed')) {
+          errorMsg += 'Network/CORS issue or project still provisioning. Retry in a minute.';
+        } else if (raw) {
+          errorMsg += raw;
+        } else {
+          errorMsg += 'Please try again.';
+        }
+        
+        errorMessage.textContent = errorMsg;
         errorMessage.style.display = 'block';
         errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } finally {
@@ -900,7 +1022,7 @@
       }
     });
 
-    // Load submissions for admin panel
+    // Load submissions for admin panel - ALWAYS uses Supabase
     async function loadSubmissions() {
       const password = document.getElementById('adminPassword').value;
       const container = document.getElementById('submissionsContainer');
@@ -915,30 +1037,40 @@
       container.innerHTML = '<div class="loading">Loading submissions...</div>';
 
       try {
-        let submissions = [];
+        // Ensure Supabase client is available (retry init if needed)
+        const clientReady = await initSupabase();
+        if (!clientReady) throw new Error('Supabase connection not available');
 
-        // If Supabase is configured, load from database
-        if (supabase && SUPABASE_URL !== 'https://stajcfokdkfdfekzktot.supabase.co') {
-          const { data, error } = await supabase
-            .from('contact_submissions')
-            .select('*')
-            .order('submitted_at', { ascending: false });
+        // Load from Supabase database
+        const { data, error } = await supabaseClient
+          .schema('public')
+          .from('contact_submissions')
+          .select('*')
+          .order('submitted_at', { ascending: false });
 
-          if (error) {
-            throw error;
-          }
-          submissions = data || [];
-        } else {
-          // Fallback to localStorage
-          submissions = JSON.parse(localStorage.getItem('nesouls_submissions') || '[]');
-          submissions.sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+        if (error) {
+          throw error;
         }
 
-        displaySubmissions(submissions);
+        console.log('✅ Submissions loaded successfully:', data.length, 'entries');
+        displaySubmissions(data || []);
 
       } catch (error) {
-        console.error('Error loading submissions:', error);
-        container.innerHTML = '<div class="error-message" style="display: block;">Error loading submissions</div>';
+        console.error('❌ Error loading submissions:', error);
+        
+        let errorMsg = 'Error loading submissions. ';
+        
+        if (error.message.includes('relation "contact_submissions" does not exist')) {
+          errorMsg += 'Database table not found. Please run the setup SQL first.';
+        } else if (error.message.includes('JWT')) {
+          errorMsg += 'Authentication error. Please check your database settings.';
+        } else if (error.message.includes('connection')) {
+          errorMsg += 'Cannot connect to database.';
+        } else {
+          errorMsg += error.message;
+        }
+        
+        container.innerHTML = `<div class="error-message" style="display: block;">${errorMsg}</div>`;
       }
     }
 
@@ -953,14 +1085,14 @@
 
       const submissionsHTML = submissions.map(submission => {
         const date = new Date(submission.submitted_at).toLocaleString();
-        const submissionId = submission.id || submission.submitted_at; // Use ID or timestamp as identifier
+        const submissionId = submission.id;
         return `
           <div class="submission-card" data-id="${submissionId}">
             <div class="submission-header">
               <div class="submission-name">${submission.name}</div>
               <div class="submission-actions">
                 <div class="submission-date">${date}</div>
-                <button class="delete-btn" onclick="deleteSubmission('${submissionId}')" title="Delete submission">
+                <button class="delete-btn" onclick="deleteSubmission(${submissionId})" title="Delete submission">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                   </svg>
@@ -985,7 +1117,7 @@
       container.innerHTML = submissionsHTML;
     }
 
-    // Delete submission function
+    // Delete submission function - ALWAYS uses Supabase
     async function deleteSubmission(submissionId) {
       // Check if admin is authenticated
       if (!isAuthenticated) {
@@ -998,25 +1130,22 @@
       }
 
       try {
-        // If Supabase is configured, delete from database
-        if (supabase && SUPABASE_URL !== 'https://stajcfokdkfdfekzktot.supabase.co') {
-          const { error } = await supabase
-            .from('contact_submissions')
-            .delete()
-            .eq('id', submissionId);
+        // Ensure Supabase client is available (retry init if needed)
+        const clientReady = await initSupabase();
+        if (!clientReady) throw new Error('Supabase connection not available');
 
-          if (error) {
-            throw error;
-          }
-        } else {
-          // Delete from localStorage
-          const existingSubmissions = JSON.parse(localStorage.getItem('nesouls_submissions') || '[]');
-          const filteredSubmissions = existingSubmissions.filter(sub => 
-            (sub.id && sub.id.toString() !== submissionId.toString()) || 
-            (sub.submitted_at !== submissionId)
-          );
-          localStorage.setItem('nesouls_submissions', JSON.stringify(filteredSubmissions));
+        // Delete from Supabase database
+        const { error } = await supabaseClient
+          .schema('public')
+          .from('contact_submissions')
+          .delete()
+          .eq('id', submissionId);
+
+        if (error) {
+          throw error;
         }
+
+        console.log('✅ Submission deleted successfully:', submissionId);
 
         // Remove the submission card from the UI with animation
         const submissionCard = document.querySelector(`[data-id="${submissionId}"]`);
@@ -1035,31 +1164,36 @@
         }
 
         // Show success message
-        const tempMessage = document.createElement('div');
-        tempMessage.style.cssText = `
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: rgba(0, 255, 0, 0.9);
-          color: #000;
-          padding: 1rem 2rem;
-          border-radius: 10px;
-          font-family: 'Orbitron', monospace;
-          z-index: 10000;
-          font-weight: bold;
-        `;
-        tempMessage.textContent = 'Submission deleted successfully!';
-        document.body.appendChild(tempMessage);
-        
-        setTimeout(() => {
-          document.body.removeChild(tempMessage);
-        }, 2000);
+        showTempMessage('Submission deleted successfully!', 'success');
 
       } catch (error) {
-        console.error('Error deleting submission:', error);
-        alert('Error deleting submission. Please try again.');
+        console.error('❌ Error deleting submission:', error);
+        showTempMessage('Error deleting submission. Please try again.', 'error');
       }
+    }
+
+    // Show temporary message
+    function showTempMessage(message, type) {
+      const tempMessage = document.createElement('div');
+      tempMessage.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: ${type === 'success' ? 'rgba(0, 255, 0, 0.9)' : 'rgba(255, 0, 0, 0.9)'};
+        color: ${type === 'success' ? '#000' : '#fff'};
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        font-family: 'Orbitron', monospace;
+        z-index: 10000;
+        font-weight: bold;
+      `;
+      tempMessage.textContent = message;
+      document.body.appendChild(tempMessage);
+      
+      setTimeout(() => {
+        document.body.removeChild(tempMessage);
+      }, 2000);
     }
 
     // Refresh submissions
@@ -1101,51 +1235,40 @@
       }
     }, 30000);
 
-    // Setup instructions for first-time users
-    window.addEventListener('load', function() {
-      if (SUPABASE_URL === 'https://stajcfokdkfdfekzktot.supabase.co') {
-        console.log(`
-🔧 NESOULS Contact Form Setup Instructions:
-
-1. Create a free Supabase account at https://supabase.com
-2. Create a new project
-3. Go to Settings > API and copy your:
-   - Project URL
-   - Anon/Public key
-4. Update the configuration in this file:
-   - SUPABASE_URL: Replace with your project URL
-   - SUPABASE_ANON_KEY: Replace with your anon key
-5. Create the database table by running this SQL in your Supabase SQL editor:
-
-CREATE TABLE contact_submissions (
-  id BIGSERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  x_profile TEXT,
-  discord_id TEXT,
-  project_name TEXT,
-  subject TEXT NOT NULL,
-  message TEXT NOT NULL,
-  submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Enable Row Level Security (RLS)
-ALTER TABLE contact_submissions ENABLE ROW LEVEL SECURITY;
-
--- Allow INSERT for anonymous users (for form submissions)
-CREATE POLICY "Allow anonymous submissions" ON contact_submissions
-  FOR INSERT WITH CHECK (true);
-
--- Allow SELECT for authenticated users (for admin panel)
-CREATE POLICY "Allow authenticated read" ON contact_submissions
-  FOR SELECT USING (auth.role() = 'authenticated');
-
-6. Change the ADMIN_PASSWORD to something secure
-
-Until configured, submissions will be stored in localStorage as a fallback.
-        `);
-      }
+    // Initialize connection status on load
+    window.addEventListener('load', async function() {
+      await initSupabase();
+      setTimeout(() => {
+        testSupabaseConnection();
+      }, 500);
     });
+
+    // Retry connection every 30 seconds if disconnected
+    setInterval(() => {
+      testSupabaseConnection();
+    }, 30000);
+
+    console.log(`
+🚀 NESOULS Contact Form Initialized
+
+📊 Configuration:
+✓ Supabase URL: ${SUPABASE_URL}
+✓ API Key: ${SUPABASE_ANON_KEY.substring(0, 20)}...
+✓ Admin Password: Set
+✓ Connection Status: Testing...
+
+📝 Required Database Table:
+Make sure you have created the 'contact_submissions' table in your Supabase database.
+
+🔧 Setup Instructions:
+1. Go to your Supabase project dashboard
+2. Navigate to SQL Editor
+3. Run the table creation script
+4. Enable RLS policies for security
+
+All form submissions will be stored in your Supabase database.
+No data will be stored in localStorage or cookies.
+    `);
   </script>
 </body>
 </html>
